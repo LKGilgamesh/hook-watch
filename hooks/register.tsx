@@ -577,7 +577,7 @@ export const register: Register = on => {
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
-    const { Box, Text } = $.ui.resolve(e)
+    const { Box, Button, Text } = $.ui.resolve(e)
     const hooks = Object.values(await read($, hooksA)).sort((a, b) => b.usd - a.usd)
     const groups = Object.values(await read($, groupsA)).sort((a, b) => b.fires - a.fires)
     const sources = Object.values(await read($, sourcesA)).sort((a, b) => b.usd - a.usd)
@@ -615,6 +615,18 @@ export const register: Register = on => {
           {fires} group firings · model hooks {fmtUsd(hookUsd)}
         </Text>
         <Text dimColor>/hooks-log prints this as text</Text>
+        <Button
+          key="reset"
+          label="Reset"
+          onPress={async () => {
+            await update($, hooksA, () => ({}))
+            await update($, groupsA, () => ({}))
+            await update($, sourcesA, () => ({}))
+            await update($, noticesA, () => ({}))
+            await update($, recentA, () => [])
+            await refreshStatus($)
+          }}
+        />
 
         {notices.length > 0 && (
           <Box flexDirection="column" marginTop={1}>

@@ -30,6 +30,7 @@ In the desktop app, where `/plugin` does not run: click + next to the prompt box
   - **Hook groups** (`PreToolUse:Bash`, `Stop`, ...): times fired and how many hooks ran, settings and plugin hooks alike.
   - **Model calls outside hooks**: the conversation itself, prompt suggestions, away summaries and so on, for comparison.
   - **Recent model-hook calls**: a history naming the hook that ran each time.
+  - A **Reset** button that clears the counters.
 - A toast when a hook blocks something.
 
 Give a prompt or agent hook a `statusMessage` in your settings and hook-watch uses it as the hook's title; otherwise it shows the start of the hook's prompt.
