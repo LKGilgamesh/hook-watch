@@ -1,0 +1,6 @@
+{
+  "name": "hook-watch",
+  "description": "hook-watch: hook firing counts and exact per-hook model cost for Claude Code",
+  "owner": { "name": "LKGilgamesh" },
+  "plugins": [{ "name": "hook-watch", "source": "./" }]
+}
