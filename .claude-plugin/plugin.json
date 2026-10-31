@@ -1,6 +1,6 @@
 {
   "name": "hook-watch",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "See how often each Claude Code hook fires and exactly what each model-calling hook costs, from Claude Code's own telemetry",
   "author": { "name": "LKGilgamesh" },
   "license": "MIT",
