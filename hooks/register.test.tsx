@@ -29,3 +29,11 @@ test('Reset clears the counters', async ($, on) => {
   expect((await ui.find({ type: 'Text', text: /group firings/ }))?.text).toMatch(/^0 group firings/)
   await ui.unmount()
 })
+
+test('the docked pane opens with its title and a divider', async $ => {
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+
+  expect((await ui.find({ type: 'Text', text: /◆ Hooks/ }))?.text).toBe('◆ Hooks')
+  expect((await ui.find({ type: 'Text', text: /^─+$/ }))?.text).toBe('─'.repeat(80))
+  await ui.unmount()
+})

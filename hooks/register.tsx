@@ -28,6 +28,10 @@ import type { GroupStat, HookStat, Notice, RecentCall, SourceStat } from '../typ
 
 const PANE = 'hook-watch'
 const TITLE = 'Hooks'
+// The docked pane's header: a mint mark, a cornflower title and a navy divider.
+const MARK = '#7fd1c7'
+const ACCENT = '#6c9ef8'
+const DIVIDER = '#1c2a40'
 const NL = String.fromCharCode(10)
 const ARGS_MARK = '{"session_id"'
 const LABEL_CHARS = 48
@@ -604,13 +608,21 @@ export const register: Register = on => {
       </Box>
     )
 
-    const used = 4 + (notices.length ? notices.length * 3 + 1 : 0) + (hooks.length * 2 + 2) + (groups.length + 2) + (sources.length ? sources.length + 2 : 0) + 2
+    const docked = e.props.placement === 'dock'
+    const used = (docked ? 6 : 4) + (notices.length ? notices.length * 3 + 1 : 0) + (hooks.length * 2 + 2) + (groups.length + 2) + (sources.length ? sources.length + 2 : 0) + 2
     // Each history entry takes two rows: which hook, then where/cost/outcome.
     const recentRoom = Math.max(0, Math.floor((rows - used) / 2))
     const byHash = new Map(hooks.map(hk => [hk.hash, hk]))
 
     return (
       <Box flexDirection="column">
+        {docked && (
+          <Text bold color={ACCENT} wrap="truncate-end">
+            <Text color={MARK}>◆ </Text>
+            {e.props.title}
+          </Text>
+        )}
+        {docked && <Text color={DIVIDER}>{'─'.repeat(Math.max(1, e.props.bodyColumns))}</Text>}
         <Text bold>
           {fires} group firings · model hooks {fmtUsd(hookUsd)}
         </Text>
