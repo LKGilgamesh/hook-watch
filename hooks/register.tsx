@@ -110,7 +110,6 @@ async function notice($: EngineInterface, code: string, title: string, why: stri
   const n: Notice = { code, title, why, at: Date.now() }
   await update($, noticesA, cur => ({ ...cur, [code]: n }))
   $.ui.toast(`hook-watch: ${title}. Run /hooks-log for why.`)
-  await refreshStatus($)
 }
 
 const FALLBACK = 'Model-hook cost is shown per hook group instead of per hook.'
@@ -253,16 +252,12 @@ async function settle($: EngineInterface, requestId: string): Promise<void> {
   })
   const call: RecentCall = { at: Date.now(), hash: info.hash, group: info.group, model: info.model, usd: cost.usd, ok }
   await update($, recentA, l => [...l, call].slice(-100))
-  await refreshStatus($)
 }
 
-async function refreshStatus($: EngineInterface): Promise<void> {
+async function totals($: EngineInterface): Promise<{ fires: number; usd: number }> {
   const hooks = Object.values(await read($, hooksA))
   const groups = Object.values(await read($, groupsA))
-  const fires = groups.reduce((s, g) => s + g.fires, 0)
-  const usd = hooks.reduce((s, h) => s + h.usd, 0)
-  const warn = Object.keys(await read($, noticesA)).length
-  $.ui.status(`hooks ${fires} fired · model hooks ${fmtUsd(usd)}${warn ? ` · ⚠ ${warn}` : ''}`)
+  return { fires: groups.reduce((s, g) => s + g.fires, 0), usd: hooks.reduce((s, h) => s + h.usd, 0) }
 }
 
 function fmtUsd(usd: number): string {
@@ -352,8 +347,27 @@ export const register: Register = on => {
       name: 'hooks-log',
       description: 'Hook firings and cost per hook (and open the Hooks pane)',
     })
+    // Earlier versions pinned a status line; the summary is a toast at each turn's end now.
+    $.ui.status(undefined)
 
     return next(e)
+  })
+
+  // The main conversation's turn totals, taken as it starts; a subagent's turn is left out.
+  let turnStart: { fires: number; usd: number } | undefined
+  on('turn.start', async ($, e, next) => {
+    if (e.agentId === undefined) turnStart = await totals($)
+    return next(e)
+  })
+  on('turn.complete', async ($, e, next) => {
+    const result = await next(e)
+    if (e.agentId !== undefined || !turnStart) return result
+    const now = await totals($)
+    const fired = now.fires - turnStart.fires
+    const usd = now.usd - turnStart.usd
+    turnStart = undefined
+    if (fired > 0) $.ui.toast(`hook-watch: ${fired} hook ${fired === 1 ? 'group' : 'groups'} fired this turn · model hooks ${fmtUsd(usd)}`)
+    return result
   })
 
   on('command.run', { command: 'hooks-log' }, async $ => {
@@ -470,7 +484,6 @@ export const register: Register = on => {
             }
           })
           if (blocking > 0) $.ui.toast(`Hook blocked: ${name}`)
-          await refreshStatus($)
           break
         }
         case 'api_request_body': {
@@ -636,7 +649,6 @@ export const register: Register = on => {
             await update($, sourcesA, () => ({}))
             await update($, noticesA, () => ({}))
             await update($, recentA, () => [])
-            await refreshStatus($)
           }}
         />
 

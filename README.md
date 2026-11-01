@@ -24,7 +24,7 @@ In the desktop app, where `/plugin` does not run: click + next to the prompt box
 
 ## What you get
 
-- **Status line**: `hooks 42 fired · model hooks $0.0012`, plus `⚠ N` when a limitation is active.
+- **Turn toast**: at the end of each turn, `hook-watch: 6 hook groups fired this turn · model hooks $0.0012`. Limitations show as their own toast.
 - **`/hooks-log`**: prints the breakdown and opens the **Hooks** pane beside the chat:
   - **Model-calling hooks**: each one's total cost, times fired, model, and how often it answered ok / not ok.
   - **Hook groups** (`PreToolUse:Bash`, `Stop`, ...): times fired and how many hooks ran, settings and plugin hooks alike.
